@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Untuk Mif Busuk Saya 🏀✨</title>
+    <style>
+        :root {
+            --bg-dark: #0e1118;
+            --accent-orange: #ff7a45; 
+            --accent-glow: #ffb443;
+            --neon-blue: rgba(0, 180, 216, 0.2);
+            --card-bg: rgba(26, 32, 44, 0.9);
+            --text-bright: #ffffff;
+            --text-muted: #a0aec0;
+        }
+
+        body {
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+            color: var(--text-muted);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            touch-action: manipulation;
+            
+            background: 
+                radial-gradient(circle at 50% -20%, rgba(255, 122, 69, 0.15), transparent 60%),
+                radial-gradient(circle at 0% 50%, var(--neon-blue), transparent 35%),
+                radial-gradient(circle at 100% 50%, var(--neon-blue), transparent 35%),
+                linear-gradient(rgba(14, 17, 24, 0.9), rgba(14, 17, 24, 0.9)),
+                repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.01) 41px, transparent 42px);
+            background-size: cover;
+        }
+
+        .container {
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            z-index: 2;
+        }
+
+        h1 {
+            font-family: 'Arial Black', sans-serif;
+            color: var(--text-bright);
+            font-size: 2.3rem;
+            text-transform: uppercase;
+            margin: 15px 0 0 0;
+            letter-spacing: 1px;
+            text-shadow: 0 4px 10px rgba(255, 122, 69, 0.3);
+            animation: gentle-bob 3s ease-in-out infinite;
+        }
+
+        .subtitle {
+            color: var(--accent-orange);
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .game-box {
+            background: var(--card-bg);
+            border: 3px solid #2d3748;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: var(--text-bright);
+            font-size: 1.1rem;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+            border-bottom: 2px dashed #2d3748;
+        }
+
+        #court-canvas {
+            width: 100%;
+            height: 360px;
+            background: rgba(7, 9, 14, 0.6);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            border: 2px dashed rgba(255, 122, 69, 0.2);
+            cursor: grab;
+            display: block;
+        }
+        
+        #court-canvas:active { cursor: grabbing; }
+
+        /* WIN SCREEN STYLING */
+        #win-screen {
+            width: 100%;
+            height: 360px;
+            background: radial-gradient(circle, rgba(255,122,69,0.15) 0%, rgba(7,9,14,0.9) 100%);
+            border-radius: 20px;
+            border: 3px double var(--accent-glow);
+            box-sizing: border-box;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .win-title {
+            font-family: 'Arial Black', sans-serif;
+            font-size: 2.2rem;
+            color: var(--accent-glow);
+            text-shadow: 0 0 15px rgba(255, 180, 67, 0.6);
+            margin: 0 0 10px 0;
+        }
+
+        .trophy {
+            font-size: 4.5rem;
+            margin: 10px 0;
+            animation: trophy-bounce 1s ease-in-out infinite alternate;
+        }
+
+        .win-message {
+            color: var(--text-bright);
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        /* BASKETBALL HOOP */
+        .hoop-container {
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .backboard {
+            width: 80px;
+            height: 50px;
+            border: 3px solid #fff;
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .inner-square {
+            width: 34px;
+            height: 22px;
+            border: 3px solid var(--accent-orange);
+            border-bottom: none;
+        }
+
+        .rim {
+            width: 44px;
+            height: 10px;
+            background: var(--accent-orange);
+            border-radius: 10px;
+            position: relative;
+            margin-top: -3px;
+            z-index: 5;
+        }
+
+        .net {
+            width: 36px;
+            height: 30px;
+            background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.4) 5px, transparent 6px),
+                        repeating-linear-gradient(-45deg, transparent, transparent 4px, rgba(255,255,255,0.4) 5px, transparent 6px);
+            border-radius: 0 0 40% 40%;
+            margin-top: -2px;
+            transition: transform 0.2s ease;
+        }
+        
+        .swish-net { transform: scaleX(0.7) scaleY(1.3); }
+
+        #ball {
+            width: 55px;
+            height: 55px;
+            font-size: 55px;
+            line-height: 1;
+            position: absolute;
+            bottom: 25px;
+            left: calc(50% - 27.5px);
+            user-select: none;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 6px 10px rgba(0,0,0,0.4));
+            transition: transform 0.1s linear;
+        }
+
+        #note-box {
+            background: rgba(14, 17, 24, 0.7);
+            border-radius: 18px;
+            padding: 18px;
+            min-height: 65px;
+            text-align: left;
+            border: 2px solid #2d3748;
+            border-top: 4px solid var(--accent-orange);
+            color: var(--text-bright);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-top: 15px;
+        }
+
+        .unlocked-title {
+            font-family: 'Arial Black', sans-serif;
+            color: var(--accent-glow);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        @keyframes gentle-bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        @keyframes pop-in {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes trophy-bounce {
+            0% { transform: translateY(0) rotate(-5deg); }
+            100% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            opacity: 0.6;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>for my cutie 👑</h1>
+        <div class="subtitle">Shoot some hoops to unlock cute notes!</div>
+
+        <div class="game-box">
+            <div class="game-header">
+                <div>Score: ❤️ <span id="score-val">0</span>/10</div>
+                <div style="color: var(--accent-glow);" id="game-status">Fling it upwards! 🚀</div>
+            </div>
+
+            <div id="court-canvas">
+                <div class="hoop-container" id="target-hoop">
+                    <div class="backboard"><div class="inner-square"></div></div>
+                    <div class="rim"></div>
+                    <div class="net" id="net-mesh"></div>
+                </div>
+                <div id="ball">🏀</div>
+            </div>
+
+            <div id="win-screen">
+                <div class="win-title">YOU WIN!</div>
+                <div style="color: var(--text-bright); text-transform: uppercase; font-weight: 800; font-size: 0.9rem;">Game Over • Season Clear</div>
+                <div class="trophy">💕</div>
+                <div class="win-message">Thank you yayang for always being there for me. You're the best teammate ever HEHE 🥰💗</div>
+            </div>
+
+            <div id="note-box">
+                <div class="unlocked-title" id="note-header">🔒 LOCKED NOTES</div>
+                <div id="note-text">Flick the big basketball into the net to get your first note! Ready, sayang? 👇</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>Made with 💗 by your #1 Fan</footer>
+
+    <script>
+        // --- 📋 CUSTOMIZE YOUR 10 NOTES BELOW HERE 📋 ---
+        const romanticNotes = [
+            "Note 1: Baby i miss youuuuuuuuuuuuuu ❤️",
+            "Note 2: I hope you are doing really well kat sanaaaa 😊💗",
+            "Note 3: Sorry that I cant always be there for you 🥺😭",
+            "Note 4: Dont forget to take care of yourself tauuuu!! ☝️✨",
+            "Note 5: Please know that I am ALWAYS proud of you ❤️❤️",
+            "Note 6: Good luck on your test tomorrow!! ✊✨",
+            "Note 7: Study elok elok tau my sayangggg 😄🏀",
+            "Note 8: I also pray that you're always in Allah's protection 🤲🔒",
+            "Note 9: Do your best tauuu for everything, barula goodboy i HEHE 🤭💗",
+            "Note 10: I love you sayang! HIHI 🙈💖",
+        ];
+
+        const victoryPhrases = [
+            "YAYY MASUKKK! 🥰",
+            "GO BABY GOOO 🔥",
+            "GOOD JOB AYANGG! ✨",
+            "HEBATNYA AYANG SAYA! 💨",
+            "UWAAAA! 💕"
+        ];
+
+        const ball = document.getElementById('ball');
+        const canvas = document.getElementById('court-canvas');
+        const winScreen = document.getElementById('win-screen');
+        const netMesh = document.getElementById('net-mesh');
+        const scoreVal = document.getElementById('score-val');
+        const gameStatus = document.getElementById('game-status');
+        const noteHeader = document.getElementById('note-header');
+        const noteText = document.getElementById('note-text');
+
+        let score = 0;
+        let isDragging = false;
+        let startX, startY;
+        
+        function resetBall() {
+            ball.style.transition = 'none';
+            ball.style.bottom = '25px';
+            ball.style.left = 'calc(50% - 27.5px)';
+            ball.style.transform = 'scale(1) rotate(0deg)';
+        }
+
+        function shootBall(deltaX, deltaY) {
+            let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            if (distance < 25) return resetBall(); 
+            
+            ball.style.transition = 'all 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.1)';
+            let targetY = -270; 
+            let targetX = deltaX * 0.45; 
+            
+            ball.style.transform = `translate(${targetX}px, ${targetY}px) scale(0.55) rotate(360deg)`;
+
+            setTimeout(() => {
+                if (Math.abs(targetX) < 40) {
+                    triggerScore();
+                } else {
+                    gameStatus.innerText = "Aww close! Try again! 👀";
+                    resetBall();
+                }
+            }, 550);
+        }
+
+        function triggerScore() {
+            score++;
+            scoreVal.innerText = score;
+            
+            netMesh.classList.add('swish-net');
+            setTimeout(() => netMesh.classList.remove('swish-net'), 300);
+            
+            confetti({ particleCount: 60, spread: 60, origin: { y: 0.45 } });
+            
+            gameStatus.innerText = victoryPhrases[(score - 1) % victoryPhrases.length];
+            
+            noteHeader.innerHTML = `✨ UNLOCKED NOTE #${score}`;
+            noteText.innerText = romanticNotes[score - 1];
+
+            setTimeout(() => {
+                // ADJUSTED: Triggers end screen when he scores exactly 10 points
+                if (score >= 10) {
+                    endGameSequence();
+                } else {
+                    resetBall();
+                }
+            }, 1000);
+        }
+
+        function endGameSequence() {
+            canvas.style.display = 'none';
+            winScreen.style.display = 'flex';
+            
+            gameStatus.innerText = "🏆 CHAMPIONSHIP CLEARED!";
+            noteHeader.innerHTML = `👑 LEAGUE MVP`;
+            noteText.innerText = "All strategy plays unlocked successfully. You won her heart! 🧡";
+            
+            let end = Date.now() + (2.5 * 1000);
+            (function frame() {
+                confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX; startY = e.clientY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            let currentX = e.clientX - startX;
+            let currentY = e.clientY - startY;
+            if(currentY > 0) currentY = 0;
+            ball.style.transform = `translate(${currentX * 0.25}px, ${currentY * 0.25}px) scale(1.05)`;
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            shootBall(e.clientX - startX, e.clientY - startY);
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            let currentX = e.touches[0].clientX - startX;
+            let currentY = e.touches[0].clientY - startY;
+            if(currentY > 0) currentY = 0;
+            ball.style.transform = `translate(${currentX * 0.25}px, ${currentY * 0.25}px) scale(1.05)`;
+        });
+
+        window.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            shootBall(e.changedTouches[0].clientX - startX, e.changedTouches[0].clientY - startY);
+        });
+    </script>
+</body>
+</html>
